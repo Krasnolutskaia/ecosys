@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+
+    <style>
+    .w3-theme-l5 {color:#000 !important; background-color:#edfaf5 !important}
+    .w3-theme-l4 {color:#000 !important; background-color:#c2eddc !important}
+    .w3-theme-l3 {color:#000 !important; background-color:#84dab9 !important}
+    .w3-theme-l2 {color:#fff !important; background-color:#47c897 !important}
+    .w3-theme-l1 {color:#fff !important; background-color:#2c946c !important}
+    .w3-theme-d1 {color:#fff !important; background-color:#174e39 !important}
+    .w3-theme-d2 {color:#fff !important; background-color:#154533 !important}
+    .w3-theme-d3 {color:#fff !important; background-color:#123c2c !important}
+    .w3-theme-d4 {color:#fff !important; background-color:#0f3426 !important}
+    .w3-theme-d5 {color:#fff !important; background-color:#0d2b20 !important}
+
+    .w3-theme-light {color:#000 !important; background-color:#edfaf5 !important}
+    .w3-theme-dark {color:#fff !important; background-color:#0d2b20 !important}
+    .w3-theme-action {color:#fff !important; background-color:#0d2b20 !important}
+
+    .w3-theme {color:#e0e2e4 !important; background-color:#1a563f !important}
+    .w3-text-theme {color:#0f3426 !important}
+    .w3-text-theme-d4 {color:#0 !important}
+    .w3-border-theme {border-color:#1a563f !important}
+
+    .w3-hover-theme:hover {color:#fff !important; background-color:#1a563f !important}
+    .w3-hover-text-theme:hover {color:#1a563f !important}
+    .w3-hover-border-theme:hover {border-color:#1a563f !important}
+
+
+
+
+
+    </style>
+
+    <title>Экосистема</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-colors-2021.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body>
+<header class="w3-container w3-theme-d3 w3-padding" id="myHeader">
+    <div class="w3-left">
+        <h4>6:59-18:22</h4>
+    </div>
+
+</header>
+
+<br>
+
+<div class="w3-row w3-text-theme">
+
+    <div class="w3-half w3-container">
+        <div class="w3-display-container" style="height:70px;">
+            <div class="w3-display-left"><h4>освещённость</h4></div>
+            <div class="w3-display-right"><h4>0 %</h4></div>
+        </div>
+
+        <div class="w3-display-container" style="height:70px;">
+            <div class="w3-display-left"><h4>влажность почвы</h4></div>
+            <div class="w3-display-right"><h4>{{ hum_soil }} %</h4></div>
+        </div>
+
+    </div>
+
+    <div class="w3-half w3-container">
+        <div class="w3-display-container" style="height:70px;">
+            <div class="w3-display-left"><h4>температура</h4></div>
+            <div class="w3-display-right"><h4>{{ temp }} C</h4></div>
+        </div>
+
+        <div class="w3-display-container" style="height:70px;">
+            <div class="w3-display-left"><h4>влажность</h4></div>
+            <div class="w3-display-right"><h4>{{ hum_air }} %</h4></div>
+        </div>
+    </div>
+</div>
+
+<hr>
+<div class="w3-row-padding w3-center w3-margin-top">
+    <div class="w3-third">
+        <div class="w3-card w3-container w3-theme" style="min-height:460px">
+            <h2>освещение</h2><br>
+
+            <div class="w3-display-container" style="height:70px;">
+                <div class="w3-display-left"><h4>авто</h4></div>
+
+                <div class="w3-display-right">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="auto_light"
+                               onclick="sendData('auto_light')" {% if auto_light %} checked {% endif %}>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="w3-display-container" style="height:70px;">
+                <div class="w3-display-left"><h4>вкл/выкл</h4></div>
+                <div class="w3-display-right">
+                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
+                                                               id="light" onclick="sendData('light')" {% if light %}
+                                                               checked {% endif %} {% if auto_light %} disabled {% endif
+                                                               %}>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <form class="navbar-form navbar-left" action="{{ url_for('day_dur') }}" method="POST">
+                    <div class="form-group">
+                        <div class="input-group input-group-sm mb-3">
+                            <input type="text" class="form-control" aria-label="Default"
+                                   aria-describedby="inputGroup-sizing-default" name="day_dur"
+                                   value="{{ request.args.get('day_dur', '') }}">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="inputGroup-sizing-default"><font color="#0f3426"
+                                                                                                    size="4">ч</font></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-light"><font color="#0f3426" size="5">ок</font></button>
+                </form>
+
+        </div>
+    </div>
+
+    <div class="w3-third">
+        <div class="w3-card w3-container  w3-theme" style="min-height:460px">
+            <h2>поворот</h2><br>
+            <div class="w3-display-container" style="height:70px;">
+                <div class="w3-display-left"><h4>авто</h4></div>
+                <div class="w3-display-right">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="auto_rotate"
+                               onclick="sendData('auto_rotate')" {% if auto_rotate %} checked {% endif %}>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="w3-display-container" style="height:70px;">
+                <div class="w3-display-left"><h4>вращение</h4></div>
+                <div class="w3-display-right">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="const_rotate"
+                               onclick="sendData('const_rotate')" {% if const_rotate %} checked {% endif %}>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <div class="w3-center">
+
+
+                <form class="navbar-form navbar-left" action="{{ url_for('rotate') }}" method="POST">
+                    <div class="form-group">
+                        <div class="input-group input-group-sm mb-3">
+                            <input type="text" class="form-control" aria-label="Default"
+                                   aria-describedby="inputGroup-sizing-default" name="angle"
+                                   value="{{ request.args.get('angle', '') }}">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="inputGroup-sizing-default"><font color="#0f3426"
+                                                                                                    size="4">*</font></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-light"><font color="#0f3426" size="5">повернуть</font></button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="w3-third">
+        <div class="w3-card w3-container w3-theme" style="min-height:460px">
+            <h2>полив</h2>
+            <br>
+            <div class="w3-display-container" style="height:70px;">
+                <div class="w3-display-left"><h4>авто</h4></div>
+                <div class="w3-display-right">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" id="auto_water"
+                               onclick="sendData('auto_water')" {% if auto_water %} checked {% endif %}>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <form class="navbar-form navbar-left" action="{{ url_for('water') }}" method="POST">
+                    <div class="form-group">
+                        <div class="input-group input-group-sm mb-3">
+                            <input type="text" class="form-control" aria-label="Default"
+                                   aria-describedby="inputGroup-sizing-default" name="volume"
+                                   value="{{ request.args.get('volume', '') }}">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="inputGroup-sizing-default"><font color="#0f3426"
+                                                                                                    size="4">мл</font></span>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-light"><font color="#0f3426" size="5">полить</font></button>
+                </form>
+
+        </div>
+    </div>
+</div>
+
+    <script>
+        function CreateRequest()
+        {
+            var Request = false;
+            if (window.XMLHttpRequest)
+            {
+                Request = new XMLHttpRequest();
+            }
+            else if (window.ActiveXObject)
+            {
+                try
+                {
+                     Request = new ActiveXObject("Microsoft.XMLHTTP");
+                }
+                catch (CatchException)
+                {
+                     Request = new ActiveXObject("Msxml2.XMLHTTP");
+                }
+            }
+            if (!Request)
+            {
+                alert("Невозможно создать XMLHttpRequest");
+            }
+            return Request;
+        }
+
+
+        function sendData(elem){
+            var Request = CreateRequest();
+            if (!Request)
+            {
+                return;
+            }
+            var chbox;
+            chbox = document.getElementById(elem);
+            let sendingData = {
+                dat: chbox.checked
+            }
+            let data = JSON.stringify(sendingData);
+            Request.open('POST', 'http://192.168.197.229:80/' + elem, true);
+            Request.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
+            Request.send(data);
+            }
+
+
+
+
+
+
+    </script>
+
+</body>
+</html>
