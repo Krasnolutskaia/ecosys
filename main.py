@@ -3,7 +3,6 @@ import requests
 from flask import Flask, jsonify, render_template, url_for, redirect
 from flask import request
 from datetime import datetime, timedelta
-import time
 import os
 
 app = Flask(__name__)
