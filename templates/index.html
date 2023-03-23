@@ -28,10 +28,6 @@
     .w3-hover-text-theme:hover {color:#1a563f !important}
     .w3-hover-border-theme:hover {border-color:#1a563f !important}
 
-
-
-
-
     </style>
 
     <title>Экосистема</title>
@@ -40,12 +36,28 @@
     <link rel="stylesheet" href="https://www.w3schools.com/lib/w3-colors-2021.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
+    <script type="text/javascript" src="../static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="../static/js/send_data.js"></script>
+    <script type="text/javascript" src="../static/js/get_data.js"></script>
+
 </head>
 
 <body>
 <header class="w3-container w3-theme-d3 w3-padding" id="myHeader">
     <div class="w3-left">
-        <h4>6:59-18:22</h4>
+        <h4><span id="sunrise"></span>-<span id="sunset"></span></h4>
+    </div>
+
+    <div class="w3-right">
+        <form class="navbar-form navbar-right" action="{{ url_for('set_city') }}" method="POST">
+            <div class="input-group mb-3">
+                <input type="text" class="form-control" placeholder="{{ city }}" aria-label="{{ city }}" name="set_city">
+                <div class="input-group-append">
+                    <button class="btn btn-light" type="submit">ок</button>
+                </div>
+            </div>
+        </form>
     </div>
 
 </header>
@@ -57,12 +69,12 @@
     <div class="w3-half w3-container">
         <div class="w3-display-container" style="height:70px;">
             <div class="w3-display-left"><h4>освещённость</h4></div>
-            <div class="w3-display-right"><h4>0 %</h4></div>
+            <div class="w3-display-right"><h4><span id="light_lvl">{{ light_lvl }}</span> %</h4></div>
         </div>
 
         <div class="w3-display-container" style="height:70px;">
             <div class="w3-display-left"><h4>влажность почвы</h4></div>
-            <div class="w3-display-right"><h4>{{ hum_soil }} %</h4></div>
+            <div class="w3-display-right"><h4><span id="hum_soil">{{ hum_soil }}</span> %</h4></div>
         </div>
 
     </div>
@@ -70,12 +82,12 @@
     <div class="w3-half w3-container">
         <div class="w3-display-container" style="height:70px;">
             <div class="w3-display-left"><h4>температура</h4></div>
-            <div class="w3-display-right"><h4>{{ temp }} C</h4></div>
+            <div class="w3-display-right"><h4><span id="temper">{{ temp }}</span> C</h4></div>
         </div>
 
         <div class="w3-display-container" style="height:70px;">
             <div class="w3-display-left"><h4>влажность</h4></div>
-            <div class="w3-display-right"><h4>{{ hum_air }} %</h4></div>
+            <div class="w3-display-right"><h4><span id="hum_air">{{ hum_ait }}</span> %</h4></div>
         </div>
     </div>
 </div>
@@ -92,7 +104,7 @@
                 <div class="w3-display-right">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="auto_light"
-                               onclick="sendData('auto_light')" {% if auto_light %} checked {% endif %}>
+                               onclick="sendData('auto_light')">
                     </div>
                 </div>
             </div>
@@ -101,27 +113,25 @@
                 <div class="w3-display-left"><h4>вкл/выкл</h4></div>
                 <div class="w3-display-right">
                     <div class="form-check form-switch"><input class="form-check-input" type="checkbox" role="switch"
-                                                               id="light" onclick="sendData('light')" {% if light %}
-                                                               checked {% endif %} {% if auto_light %} disabled {% endif
-                                                               %}>
+                                                               id="light" onclick="sendData('light')">
                     </div>
                 </div>
             </div>
             <br>
             <form class="navbar-form navbar-left" action="{{ url_for('day_dur') }}" method="POST">
-                    <div class="form-group">
-                        <div class="input-group input-group-sm mb-3">
-                            <input type="text" class="form-control" aria-label="Default"
-                                   aria-describedby="inputGroup-sizing-default" name="day_dur"
-                                   value="{{ request.args.get('day_dur', '') }}">
-                            <div class="input-group-prepend">
+                <div class="form-group">
+                    <div class="input-group input-group-sm mb-3">
+                        <input type="text" class="form-control" aria-label="Default"
+                               aria-describedby="inputGroup-sizing-default" name="day_dur"
+                               value="{{ request.args.get('day_dur', '') }}">
+                        <div class="input-group-prepend">
                                 <span class="input-group-text" id="inputGroup-sizing-default"><font color="#0f3426"
                                                                                                     size="4">ч</font></span>
-                            </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-light"><font color="#0f3426" size="5">ок</font></button>
-                </form>
+                </div>
+                <button type="submit" class="btn btn-light"><font color="#0f3426" size="5">ок</font></button>
+            </form>
 
         </div>
     </div>
@@ -134,7 +144,7 @@
                 <div class="w3-display-right">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="auto_rotate"
-                               onclick="sendData('auto_rotate')" {% if auto_rotate %} checked {% endif %}>
+                               onclick="sendData('auto_rotate')">
                     </div>
                 </div>
             </div>
@@ -144,7 +154,7 @@
                 <div class="w3-display-right">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="const_rotate"
-                               onclick="sendData('const_rotate')" {% if const_rotate %} checked {% endif %}>
+                               onclick="sendData('const_rotate')">
                     </div>
                 </div>
             </div>
@@ -156,15 +166,15 @@
                     <div class="form-group">
                         <div class="input-group input-group-sm mb-3">
                             <input type="text" class="form-control" aria-label="Default"
-                                   aria-describedby="inputGroup-sizing-default" name="angle"
-                                   value="{{ request.args.get('angle', '') }}">
+                                   aria-describedby="inputGroup-sizing-default" name="angle">
                             <div class="input-group-prepend">
-                                <span class="input-group-text" id="inputGroup-sizing-default"><font color="#0f3426"
-                                                                                                    size="4">*</font></span>
+                                <span class="input-group-text"><font color="#0f3426"
+                                                                     size="4">*</font></span>
                             </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-light"><font color="#0f3426" size="5">повернуть</font></button>
+                    <button type="submit" class="btn btn-light" id="rotate_btn"><font color="#0f3426"
+                                                                                      size="5">повернуть</font></button>
                 </form>
 
             </div>
@@ -180,80 +190,29 @@
                 <div class="w3-display-right">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" id="auto_water"
-                               onclick="sendData('auto_water')" {% if auto_water %} checked {% endif %}>
+                               onclick="sendData('auto_water')">
                     </div>
                 </div>
             </div>
             <br>
             <form class="navbar-form navbar-left" action="{{ url_for('water') }}" method="POST">
-                    <div class="form-group">
-                        <div class="input-group input-group-sm mb-3">
-                            <input type="text" class="form-control" aria-label="Default"
-                                   aria-describedby="inputGroup-sizing-default" name="volume"
-                                   value="{{ request.args.get('volume', '') }}">
-                            <div class="input-group-prepend">
+                <div class="form-group">
+                    <div class="input-group input-group-sm mb-3">
+                        <input type="text" class="form-control" aria-label="Default"
+                               aria-describedby="inputGroup-sizing-default" name="volume">
+                        <div class="input-group-prepend">
                                 <span class="input-group-text" id="inputGroup-sizing-default"><font color="#0f3426"
                                                                                                     size="4">мл</font></span>
-                            </div>
                         </div>
                     </div>
-                    <button type="submit" class="btn btn-light"><font color="#0f3426" size="5">полить</font></button>
-                </form>
+                </div>
+                <button type="submit" class="btn btn-light" id="water_btn"><font color="#0f3426" size="5">полить</font>
+                </button>
+            </form>
 
         </div>
     </div>
 </div>
-
-    <script>
-        function CreateRequest()
-        {
-            var Request = false;
-            if (window.XMLHttpRequest)
-            {
-                Request = new XMLHttpRequest();
-            }
-            else if (window.ActiveXObject)
-            {
-                try
-                {
-                     Request = new ActiveXObject("Microsoft.XMLHTTP");
-                }
-                catch (CatchException)
-                {
-                     Request = new ActiveXObject("Msxml2.XMLHTTP");
-                }
-            }
-            if (!Request)
-            {
-                alert("Невозможно создать XMLHttpRequest");
-            }
-            return Request;
-        }
-
-
-        function sendData(elem){
-            var Request = CreateRequest();
-            if (!Request)
-            {
-                return;
-            }
-            var chbox;
-            chbox = document.getElementById(elem);
-            let sendingData = {
-                dat: chbox.checked
-            }
-            let data = JSON.stringify(sendingData);
-            Request.open('POST', 'http://192.168.197.229:80/' + elem, true);
-            Request.setRequestHeader('Content-type', 'application/json; charset=UTF-8');
-            Request.send(data);
-            }
-
-
-
-
-
-
-    </script>
 
 </body>
 </html>

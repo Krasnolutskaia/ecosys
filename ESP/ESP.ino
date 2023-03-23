@@ -30,16 +30,20 @@ DHT dht(DHT_PIN, DHT_TYPE);
 const char *ssid = "1";       // имя вашей wifi точки доступа
 const char *password = "0123456789"; // пароль wifi
 const char* serverName_from = "http://192.168.197.229:80/from_greenhouse";
-const char* serverName_to = "http://192.168.197.229:80/to_greenhouse";
+const char* serverName_to = "http://192.168.197.229:80/get_data";
 JSONVar doc;
 
 float hum_air, temp;
 int hum_soil, hum_soil_border, volume, angle, water;
+int sunset = 0;
+int sunrise = 0;
+int curr_h = 0;
+int day_durr = 0;
 int rotate = 0;
 int auto_rotate = 0;
 int const_rotate = 0;
 
-int delay_time = 3000;
+int delay_time = 1000;
 unsigned long last_time;
 
 int auto_water = 0;
@@ -103,7 +107,7 @@ void lights(){
       light_av += light_vals[i];
     }
     light_av = light_av / 4;
-    if (light_av > light_border){
+    if (light_av > light_border || day_durr * sunset * sunrise == 0 || sunset - sunrise >= day_durr || curr_h >= sunrise - (day_durr - (sunset - sunrise)) / 2 || curr_h <= sunset + (day_durr - (sunset - sunrise)) / 2){
       analogWrite(LIGHT_PIN, 255);
       light = 1;
     }
@@ -302,6 +306,10 @@ void loop()
     auto_light = doc["auto_light"];
     light = doc["light"];
     light_border = doc["light_border"];
+    curr_h = doc["curr_h"];
+    sunset = doc["sunset_h"];
+    sunrise = doc["sunrise_h"];
+    day_durr = doc["day_durr";]
     lights();
 
     water = doc["water"];

@@ -1,11 +1,17 @@
+import json
+import requests
 from flask import Flask, jsonify, render_template, url_for, redirect
 from flask import request
+from datetime import datetime, timedelta
+import time
 import os
 
 app = Flask(__name__)
 
 status = {'rotate': 0, 'angle': 0, 'auto_rotate': 0, 'const_rotate': 0,
-          'auto_light': 0, 'light': 0, 'light_border': 2000, 'day_duration': 0,
+          'auto_light': 0, 'light': 0, 'light_border': 2000, 'day_duration': 0, 'light_lvl': 0,
+          'last_checked': datetime.fromtimestamp(1000000000), 'sunrise_h': 0, 'sunset_h': 0, 'timezone': 0, 'l_tz': 0,
+          'sunrise_str': '', 'sunset_str': '', 'city': 'Moscow', 'curr_h': 0,
           'temp': -1.0, 'hum_air': -1.0, 'hum_soil': 0, 'hum_soil_border': 2000,
           'auto_water': 0, 'water': 0, 'water_volume': 0,
           'lights': [{'n': 1, 'val': 0}, {'n': 2, 'val': 0}, {'n': 3, 'val': 0}, {'n': 4, 'val': 0}, ], }
@@ -15,8 +21,7 @@ status = {'rotate': 0, 'angle': 0, 'auto_rotate': 0, 'const_rotate': 0,
 def index():
     print(status)
     return render_template('index.html', temp=status['temp'], hum_air=status['hum_air'], hum_soil=status['hum_soil'],
-                           lights=status['lights'], water=status['water'], auto_light=status['auto_light'],
-                           light=status['light'], auto_rotate=status['auto_rotate'], const_rotate=status['const_rotate'])
+                           light_lvl=status['light_lvl'], lights=status['lights'], city=status['city'])
 
 
 @app.route('/auto_water', methods=["POST"])
@@ -39,7 +44,6 @@ def auto_light():
 
 @app.route('/light', methods=["POST"])
 def light():
-    print(request.json['dat'])
     if request.json['dat']:
         status['light'] = 1
     else:
@@ -88,6 +92,14 @@ def day_dur():
     return redirect(url_for('index'))
 
 
+@app.route('/set_city', methods=["POST"])
+def set_city():
+    if request.form['set_city']:
+        status['city'] = request.form['set_city']
+        get_sun_info()
+    return redirect(url_for('index'))
+
+
 @app.route('/from_greenhouse', methods=["POST"])
 def from_greenhouse():
     if request.method == "POST":
@@ -98,8 +110,12 @@ def from_greenhouse():
         if status['auto_light']:
             status['light'] = int(request.form.get('light'))
 
+        light_lvl = 0
         for i in range(4):
-            status['lights'][i]['val'] = int(request.form.get(f'light_val{i}'))
+            val = int(request.form.get(f'light_val{i}'))
+            status['lights'][i]['val'] = val
+            light_lvl += val
+        status['light_lvl'] = 100 - int(light_lvl / 16384 * 100)
 
         try:
             status['hum_air'] = float(hum_air)
@@ -120,11 +136,43 @@ def from_greenhouse():
     return 'ok'
 
 
-@app.route('/to_greenhouse')
-def to_greenhouse():
+@app.route('/get_data')
+def get_data():
+    if next_day():
+        get_sun_info()
+    get_curr_hour()
     return jsonify(status)
+
+
+def get_curr_hour():
+    td = timedelta(seconds=status['timezone'])
+    dt_now = datetime.utcnow() + td
+    status['curr_h'] = dt_now.hour
+
+
+def get_sun_info():
+    r = requests.get(f"https://api.openweathermap.org/data/2.5/weather?q={status['city']}&appid=61353381666a7580e62eb549c0b7b099")
+    time.sleep(1)
+    r = json.loads(r.text)
+    if r["cod"] == 200:
+        status['last_checked'] = datetime.utcnow()
+        dt = datetime.now() - datetime.utcnow()
+        status['l_tz'] = dt.seconds
+        status['timezone'] = int(r["timezone"])
+        ss = datetime.fromtimestamp(int(r["sys"]["sunset"])) - datetime.fromtimestamp(status['l_tz']) + datetime.fromtimestamp(int(r["timezone"]))
+        sr = datetime.fromtimestamp(int(r["sys"]["sunrise"])) - datetime.fromtimestamp(status['l_tz']) + datetime.fromtimestamp(int(r["timezone"]))
+        status['sunset_str'], status['sunrise_str'] = ss.strftime('%H:%M'), sr.strftime('%H:%M')
+        status['sunset_h'], status['sunrise_h'] = ss.hour, sr.hour
+
+
+def next_day():
+    dt_now = datetime.utcnow()
+    dt_lc = status['last_checked']
+    if dt_now.year - dt_lc.year > 0 or dt_now.month - dt_lc.month > 0 or dt_now.day - dt_lc.day > 0:
+        return True
+    return False
 
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 80))
-    app.run(debug=True, host='192.168.197.229', port=port)
+    app.run(debug=True, host='172.16.102.41', port=port)
